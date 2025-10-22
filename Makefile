@@ -5,7 +5,7 @@ run:
 	docker run -it jucepine 2>&1 | tee run.log
 
 clean:
-	docker rmi jucepine || true
+	docker rmi jucepine 2>/dev/null || true
 	docker system prune -f
 	rm -f build.log run.log
 
