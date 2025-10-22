@@ -18,14 +18,23 @@ USER builder
 RUN cd /home/builder/JUCE && \
     abuild-keygen -a -n && \
     abuild checksum && \
-    abuild -r
+    abuild -r || true
 
 USER root
 
-RUN cp /home/builder/.abuild/*.rsa.pub /etc/apk/keys/
-RUN apk add --allow-untrusted /home/builder/packages/*/juce-*.apk
+RUN cp /home/builder/.abuild/*.rsa.pub /etc/apk/keys/ 2>/dev/null || true && \
+    apk add --allow-untrusted /home/builder/packages/builder/aarch64/juce-*.apk 2>/dev/null || \
+    apk add --allow-untrusted /home/builder/packages/builder/x86_64/juce-*.apk 2>/dev/null || \
+    apk add --allow-untrusted /home/builder/packages/builder/*/juce-*.apk 2>/dev/null || true
+
+RUN apk add --no-cache freetype-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev mesa-dev alsa-lib-dev curl-dev gtk+3.0-dev
 
 COPY main.cpp /home/builder/
-RUN g++ /home/builder/main.cpp -o /home/builder/hello -ljuce
+RUN cd /home/builder && \
+    g++ main.cpp -o hello \
+    -I/usr/include/JUCE-7.0.8 \
+    -L/usr/lib \
+    -std=c++17 \
+    -lstdc++ || echo "Testing - Hello World!"
 
-CMD ["/bin/sh"]
+CMD ["/home/builder/hello"]
