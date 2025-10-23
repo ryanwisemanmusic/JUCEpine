@@ -1,37 +1,39 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 project(HelloWorld)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-execute_process(
-    COMMAND find /usr -name "juce_core.h" -type f 2>/dev/null | head -1
-    OUTPUT_VARIABLE JUCE_HEADER_PATH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-if(JUCE_HEADER_PATH)
-    get_filename_component(JUCE_INCLUDE_DIR "${JUCE_HEADER_PATH}" DIRECTORY)
-    get_filename_component(JUCE_INCLUDE_DIR "${JUCE_INCLUDE_DIR}" DIRECTORY)
-    message(STATUS "Found JUCE headers at: ${JUCE_INCLUDE_DIR}")
-else()
-    set(JUCE_INCLUDE_DIR "/usr/include/JUCE-7.0.8/modules")
-    message(WARNING "Could not auto-detect JUCE headers, using fallback: ${JUCE_INCLUDE_DIR}")
-endif()
-
-# Check if the directory actually exists
-if(NOT EXISTS "${JUCE_INCLUDE_DIR}")
-    message(FATAL_ERROR "JUCE headers not found at: ${JUCE_INCLUDE_DIR}")
-endif()
+set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "Release flags" FORCE)
 
 add_executable(hello main.cpp)
 
-target_include_directories(hello PRIVATE 
-    ${JUCE_INCLUDE_DIR}
+target_include_directories(hello PRIVATE
+    ${CMAKE_SOURCE_DIR}/JUCE
+    ${CMAKE_SOURCE_DIR}/JUCE/modules
 )
 
-# Link basic system libraries
-target_link_libraries(hello PRIVATE 
-    stdc++fs
+target_compile_options(hello PRIVATE
+    -O3
+    -DNDEBUG
+    -D_NDEBUG
+    -fno-exceptions
+)
+
+target_compile_definitions(hello PRIVATE
+    JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
+    JUCE_MODAL_LOOPS_PERMITTED=1
+    JUCE_MODULE_AVAILABLE_juce_core=1
+    JUCE_STANDALONE_APPLICATION=1
+    NDEBUG=1
+    _NDEBUG=1
+    JUCE_DISABLE_NATIVE_FILECHOOSER=1
+    JUCE_DISABLE_ASSERTIONS=1
+)
+
+target_link_libraries(hello PRIVATE
     pthread
+    dl
+    asound
 )
