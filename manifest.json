@@ -1,0 +1,14 @@
+{
+  "name": "jucepine",
+  "description": "JUCE-based audio app packaged for Alpine Linux Edge",
+  "architecture": "x86_64",
+  "alpine": {
+    "branch": "edge",
+    "apkbuild": "APKBUILD",
+    "buildCommand": "abuild -r",
+    "output": "/home/builder/packages"
+  },
+  "license": "MIT",
+  "maintainer": "Your Name <your@email>",
+  "repository": "https://github.com/yourname/jucepine"
+}
