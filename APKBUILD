@@ -7,6 +7,7 @@ pkgdesc="JUCE Framework for Alpine Linux"
 url="https://juce.com"
 arch="all"
 license="GPL3"
+depends="freetype libx11 libxrandr libxinerama libxcursor mesa alsa-lib curl gtk+3.0"
 depends_dev=""
 makedepends="
 	cmake
@@ -53,29 +54,31 @@ prepare() {
     /* musl libc does not have backtrace support */\
     result << "(backtrace not available on this platform)" << newLine;' \
 		"$builddir/modules/juce_core/system/juce_SystemStats.cpp"
+	
+	# Disable LADSPA in the source code to ensure it's completely disabled
+	sed -i 's/#define JUCE_PLUGINHOST_LADSPA 1/#define JUCE_PLUGINHOST_LADSPA 0/' \
+		"$builddir/modules/juce_audio_processors/juce_audio_processors.h"
 }
 
 build() {
-	if [ "$CBUILD" != "$CHOST" ]; then
-		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
-	fi
+    if [ "$CBUILD" != "$CHOST" ]; then
+        CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+    fi
 
-	CFLAGS="$CFLAGS" \
-	CXXFLAGS="$CXXFLAGS" \
+    CFLAGS="$CFLAGS" \
+    CXXFLAGS="$CXXFLAGS" \
 	cmake -B build -G Ninja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib \
 		-DCMAKE_BUILD_TYPE=MinSizeRel \
-		-DCMAKE_JOB_POOLS=thr=3 \
-		-DCMAKE_JOB_POOL_LINK=thr \
 		-DJUCE_BUILD_EXTRAS=OFF \
 		-DJUCE_BUILD_EXAMPLES=OFF \
-		-DJUCE_ENABLE_MODULE_SOURCE_GROUPS=ON \
-		-DJUCE_STRICT_REFCOUNTEDPTR=OFF \
-		-DJUCE_WEB_BROWSER=OFF \
+		-DJUCE_BUILD_EXAMPLES=OFF \
+		-DJUCE_BUILD_TESTS=OFF \
+		-DJUCE_BUILD_PLUGINS=OFF \
+		-DJUCE_BUILD_EXAMPLES=OFF \
 		$CMAKE_CROSSOPTS
-	
-	ninja -C build
+    
+    ninja -C build
 }
 
 check() {
@@ -88,7 +91,66 @@ check() {
 }
 
 package() {
-	DESTDIR="$pkgdir" ninja -C build install
+	# Create directory structure
+	mkdir -p "$pkgdir/usr/include"
+	mkdir -p "$pkgdir/usr/share/juce"
+	mkdir -p "$pkgdir/usr/lib/pkgconfig"
+	
+	# Install all JUCE modules to /usr/include/JUCE
+	cp -r "$builddir/modules" "$pkgdir/usr/include/JUCE"
+	
+	# Install extras and examples to /usr/share/juce
+	cp -r "$builddir/extras" "$pkgdir/usr/share/juce/"
+	cp -r "$builddir/examples" "$pkgdir/usr/share/juce/"
+	
+	# Create versioned directory for compatibility
+	mkdir -p "$pkgdir/usr/include/JUCE-$pkgver"
+	cp -r "$builddir/modules" "$pkgdir/usr/include/JUCE-$pkgver/"
+	
+	# Create essential symlinks
+	cd "$pkgdir/usr/include"
+	ln -sf "JUCE-$pkgver" JUCE
+	
+	# Create individual module symlinks for direct access
+	for module in "$pkgdir/usr/include/JUCE/modules"/*; do
+		module_name=$(basename "$module")
+		ln -sf "JUCE/modules/$module_name" "juce_$module_name"
+	done
+	
+	# Create pkg-config file
+	cat > "$pkgdir/usr/lib/pkgconfig/juce.pc" <<EOF
+prefix=/usr
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: JUCE
+Description: JUCE Cross-Platform C++ Framework
+Version: $pkgver
+Cflags: -I\${includedir}/JUCE
+Libs: -L\${libdir}
+EOF
+
+	# Create a simple CMake config file
+	mkdir -p "$pkgdir/usr/lib/cmake/JUCE"
+	cat > "$pkgdir/usr/lib/cmake/JUCE/JUCEConfig.cmake" <<EOF
+# JUCE CMake configuration
+set(JUCE_ROOT /usr/include/JUCE)
+set(JUCE_MODULES_PATH \${JUCE_ROOT}/modules)
+message(STATUS "Found JUCE: \${JUCE_ROOT}")
+EOF
+
+	# Create documentation and license
+	mkdir -p "$pkgdir/usr/share/doc/juce"
+	cp "$builddir/LICENSE.md" "$pkgdir/usr/share/doc/juce/"
+	cp "$builddir/README.md" "$pkgdir/usr/share/doc/juce/"
+}
+
+post_install() {
+    if [ -f /home/builder/.abuild/*.rsa.pub ]; then
+        mkdir -p /etc/apk/keys
+        cp /home/builder/.abuild/*.rsa.pub /etc/apk/keys/
+    fi
 }
 
 sha512sums="271f241cfb76bc1ea1838d9ba552b893d1d8df413d24b051ffb31c6c9b7eff10d18c16d3e8b03c9a910470508e2177aa2d15eab208974171d5835b8b62fcabdf  juce-7.0.8.tar.gz"
