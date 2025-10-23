@@ -41,12 +41,15 @@ RUN mkdir -p /artifacts && \
         cp -rv /home/builder/JUCE/usr/lib/cmake /artifacts/lib/; \
     fi
 
+USER root
+RUN adduser builder abuild
+
 USER builder
 WORKDIR /home/builder
 
-RUN abuild-keygen -a -i -n
-
-RUN abuild -r -P
+COPY APKBUILD /home/builder/APKBUILD
+RUN abuild-keygen -a -n
+RUN abuild -r -P --no-sign
 
 
 FROM alpine:3.22 AS final
