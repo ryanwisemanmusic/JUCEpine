@@ -7,7 +7,7 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositor
 
 RUN apk add --no-cache build-base bash git curl ca-certificates \
     freetype-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev mesa-dev \
-    gtk+3.0-dev alsa-lib-dev curl-dev gcompat
+    gtk+3.0-dev alsa-lib-dev curl-dev gcompat abuild doas
 
 RUN adduser -D builder
 WORKDIR /home/builder
@@ -18,7 +18,6 @@ WORKDIR /home/builder/JUCE
 COPY . /home/builder/JUCE
 RUN mkdir -p /home/builder/JUCE/usr/include /home/builder/JUCE/usr/share && \
     chown -R builder:builder /home/builder/JUCE/usr
-
 
 RUN mkdir -p /home/builder/JUCE/usr/include && \
     if [ -d modules ]; then cp -rv modules /home/builder/JUCE/usr/include/JUCE; fi && \
@@ -42,15 +41,27 @@ RUN mkdir -p /artifacts && \
         cp -rv /home/builder/JUCE/usr/lib/cmake /artifacts/lib/; \
     fi
 
+USER builder
+WORKDIR /home/builder
+
+RUN abuild-keygen -a -i -n
+
+RUN abuild -r -P
+
 
 FROM alpine:3.22 AS final
 
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    apk update && \
-    apk add --no-cache freetype libx11 libxrandr libxinerama libxcursor mesa alsa-lib curl gtk+3.0 ca-certificates || true
+RUN apk update && \
+    apk add --no-cache build-base freetype-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev mesa-dev \
+    alsa-lib-dev curl-dev gtk+3.0-dev ca-certificates
 
 COPY --from=builder /artifacts/include /usr/include
 COPY --from=builder /artifacts/share /usr/share
 
-CMD ["sh"]
+COPY main.cpp /home/builder/main.cpp
+WORKDIR /home/builder
+
+RUN g++ -I/usr/include main.cpp -o test_juce
+
+CMD ["./test_juce"]
+
