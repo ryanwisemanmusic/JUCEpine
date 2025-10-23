@@ -1,11 +1,11 @@
-# # APKBUILD for JUCE
+# APKBUILD for JUCE
 # Maintainer: Ryan Wiseman <ryanwisemanmusic@gmail.com>
 pkgname=juce
 pkgver=7.0.8
 pkgrel=1
 pkgdesc="JUCE Framework for Alpine Linux (headers only)"
 url="https://juce.com"
-arch="all"
+arch="x86_64"
 license="GPL3"
 depends="freetype libx11 libxrandr libxinerama libxcursor mesa alsa-lib curl gtk+3.0"
 depends_dev=""
@@ -31,8 +31,16 @@ source="juce-$pkgver.tar.gz::https://github.com/juce-framework/JUCE/archive/refs
 builddir="$srcdir/JUCE-$pkgver"
 
 prepare() {
-	echo "=== PREPARE PHASE ==="
-	default_prepare
+    echo "=== PREPARE PHASE ==="
+
+    mkdir -p "$HOME/.abuild"
+
+    if [ ! -f "$HOME/.abuild/juce-temp.rsa" ]; then
+        echo "Generating temporary abuild key (local only)..."
+        abuild-keygen -a -n -p "$HOME/.abuild/juce-temp.rsa" || true
+    fi
+
+    default_prepare
 }
 
 build() {
