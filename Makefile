@@ -1,5 +1,7 @@
 build:
-	docker build -t jucepine . 2>&1 | tee build.log
+	mkdir -p output
+	docker build --no-cache -t jucepine . 2>&1 | tee build.log
+	@echo "Build complete."
 
 run:
 	docker run -it jucepine 2>&1 | tee run.log
@@ -11,5 +13,6 @@ clean:
 	docker rmi jucepine 2>/dev/null || true
 	docker system prune -f
 	rm -f build.log run.log
+	rm -rf output
 
 .PHONY: build run run-via-bash clean
