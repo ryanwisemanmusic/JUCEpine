@@ -11,10 +11,4 @@ services:
       - ./keys:/home/builder/.abuild
       - ./distfiles:/var/cache/distfiles
       - ./packages:/home/builder/packages
-    command: |
-      mkdir -p /var/cache/distfiles && chmod 777 /var/cache/distfiles
-      mkdir -p /home/builder/packages && chmod 777 /home/builder/packages
-      abuild -F
-      cp -r /home/builder/packages/*/juce/usr/ /usr/
-      g++ -I/usr/include /home/builder/main.cpp -o /home/builder/test_juce
-      ./test_juce
+    command: /home/builder/test_juce
