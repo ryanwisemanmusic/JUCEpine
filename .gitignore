@@ -2,3 +2,6 @@
 build.log
 run.log
 run_test.log
+keys/-68fb6c0f.rsa
+keys/-68fb6c0f.rsa.pub
+keys/abuild.conf
