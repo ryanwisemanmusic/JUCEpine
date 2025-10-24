@@ -1,9 +1,15 @@
-- Get libraries to register
-- Write the CMake file for JUCE
-- Trace build process, make sure there are no possible warnings
-- Virtualize environment by making the Docker container an official image
-- Check if JUCE framework works in Alpine Linux officially
+Essentials for TODO:
+- Patch RSA key issue
+- Ensure no arch
+- Make sure signature is trusted
+- Make sure JUCE creates index
+- Double check if this thing is fine: >>> juce: Uninstalling dependencies...
+- Fix extremely concerning error: No such package: .makedepends-juce
+- Check headers, ensure that each can be reached
+
+Finalization TODO:
+- Shell test calls in bash to JUCE, ensure we can parse through all the headers and it reflects everything added
+- Create desktop environment via QEMU and attempt to run JUCE
 - Submit to Alpine Edge by cloining Edge, creating a branch, and then create a pull request
 - Be willing to answer any emails about the code in question
-- Once pull request is validated, create official Docker image that is a package on GitHub
 - Publicize repos 
