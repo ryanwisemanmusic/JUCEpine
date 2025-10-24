@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug in container",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/local/bin/hello",
+      "cwd": "/workspace",
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "externalConsole": true
+    }
+  ]
+}

@@ -1,7 +1,11 @@
 build:
 	mkdir -p output
-	docker build --no-cache -t jucepine . 2>&1 | tee build.log
+	docker buildx build \
+		--platform linux/amd64 \
+		--no-cache \
+		-t jucepine:latest . 2>&1 | tee build.log
 	@echo "Build complete."
+
 
 run:
 	docker run -it jucepine 2>&1 | tee run.log
