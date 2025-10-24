@@ -159,7 +159,10 @@ set(JUCE_MODULES_PATH /usr/include/JUCE-$pkgver/modules)
 EOF
 }
 
-# A note to anyone who wants to work on this, JUCE is one of the most Alpine-unfriendly frameworks.
-# It is not as simple as creating something close to the code of others, but accounting for the fact it's a framework
-# Yes you may hate me for choosing to pick such a pain in the ass framework to implement, it did not exist
-# and I thought it would be a fun project for a month
+# This is missing the Projucer component, which if you want to incorporate this,
+# make sure you create a seperate APK package called 'juce' (instead of trying to 
+# merge it into 'juce-dev')
+
+# Please if you manage the Edge side of Alpine, that if someone tries this,
+# you reject their changes to this APKBUILD file. 
+# juce-dev was intended without the Projucer component.
