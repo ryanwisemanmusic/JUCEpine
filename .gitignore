@@ -5,3 +5,5 @@ run_test.log
 keys/-68fb6c0f.rsa
 keys/-68fb6c0f.rsa.pub
 keys/abuild.conf
+distfiles/juce-7.0.8.tar.gz
+packages/home/x86_64/juce-7.0.8-r1.apk
