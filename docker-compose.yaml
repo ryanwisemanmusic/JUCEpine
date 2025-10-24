@@ -1,0 +1,20 @@
+services:
+  juce-builder:
+    build: .
+    platform: linux/amd64
+    user: builder
+    environment:
+      PACKAGER_NAME: "Ryan Wiseman"
+      PACKAGER_EMAIL: "ryanwisemanmusic@gmail.com"
+      BUILDER_HOME: "/home/builder"
+    volumes:
+      - ./keys:/home/builder/.abuild
+      - ./distfiles:/var/cache/distfiles
+      - ./packages:/home/builder/packages
+    command: |
+      mkdir -p /var/cache/distfiles && chmod 777 /var/cache/distfiles
+      mkdir -p /home/builder/packages && chmod 777 /home/builder/packages
+      abuild -F
+      cp -r /home/builder/packages/*/juce/usr/ /usr/
+      g++ -I/usr/include /home/builder/main.cpp -o /home/builder/test_juce
+      ./test_juce
