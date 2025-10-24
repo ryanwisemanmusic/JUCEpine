@@ -13,4 +13,6 @@ WORKDIR /home/builder
 COPY APKBUILD 7.0.8.tar.gz ./
 COPY main.cpp .
 
+RUN g++ -I/usr/include main.cpp -o test_juce
+
 CMD ["./test_juce"]
