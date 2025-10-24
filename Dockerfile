@@ -1,8 +1,8 @@
 FROM alpine:3.22 AS final
 
-# Install runtime dependencies only
+# Install runtime dependencies and build tools for test compilation
 RUN apk update && \
-    apk add --no-cache freetype libx11 libxrandr libxinerama libxcursor mesa alsa-lib curl gtk+3.0 ca-certificates
+    apk add --no-cache freetype libx11 libxrandr libxinerama libxcursor mesa alsa-lib curl gtk+3.0 ca-certificates build-base
 
 # Copy the JUCE headers and shared artifacts built by APKBUILD
 COPY packages/juce/usr/ /usr/
