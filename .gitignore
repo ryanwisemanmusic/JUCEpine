@@ -7,3 +7,6 @@ keys/-68fb6c0f.rsa.pub
 keys/abuild.conf
 distfiles/juce-7.0.8.tar.gz
 packages/home/x86_64/juce-7.0.8-r1.apk
+keys/-68ffc11b.rsa.pub
+keys/-68ffc11b.rsa
+packages/home/x86_64/APKINDEX.tar.gz
