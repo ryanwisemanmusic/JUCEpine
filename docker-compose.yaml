@@ -11,4 +11,13 @@ services:
       - ./keys:/home/builder/.abuild
       - ./distfiles:/var/cache/distfiles
       - ./packages:/home/builder/packages
-    command: /home/builder/test_juce
+    # This is required for the sake of doas, which is Docker-specific (so don't worry about APKBUILD being reflected badly)
+    command: >
+      /bin/sh -c "
+        echo '[DEBUG] 🗝️ Ensuring abuild key setup...' &&
+        doas mkdir -p /etc/apk/keys &&
+        doas cp /home/builder/.abuild/*.pub /etc/apk/keys/ &&
+        doas chmod 644 /etc/apk/keys/*.pub &&
+        echo '[DEBUG] ✅ Abuild key copied to /etc/apk/keys' &&
+        /home/builder/test_juce
+      "
