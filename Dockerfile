@@ -7,12 +7,13 @@ RUN apk add --no-cache \
     curl gtk+3.0 ca-certificates
 
 RUN adduser -D -G abuild builder
-
+RUN echo "permit nopass builder as root" > /etc/doas.conf
 WORKDIR /home/builder
 
 COPY APKBUILD 7.0.8.tar.gz ./
-COPY main.cpp .
+COPY main.cpp ./
 
 RUN g++ -I/usr/include main.cpp -o test_juce
+USER builder
 
 CMD ["./test_juce"]
