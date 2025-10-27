@@ -1,11 +1,18 @@
 # APKBUILD for JUCE
 # Maintainer: Ryan Wiseman <ryanwisemanmusic@gmail.com>
+REPODEST="/home/builder/packages"
+mkdir -p "$REPODEST/home"
+if [ -d "$REPODEST/home" ]; then
+    echo "[DEBUG] ✅ Repository directory confirmed: $(realpath "$REPODEST/home")"
+else
+    echo "[DEBUG] ❌ Failed to create repository directory: $REPODEST/home"
+fi
 pkgname=juce
 pkgver=7.0.8
 pkgrel=1
 pkgdesc="JUCE Framework for Alpine Linux (headers only)"
 url="https://juce.com"
-arch="x86_64"
+arch="noarch"
 license="GPL3"
 depends="freetype libx11 libxrandr libxinerama libxcursor mesa alsa-lib curl gtk+3.0"
 depends_dev=""
@@ -44,17 +51,18 @@ builddir="$srcdir/JUCE-$pkgver"
 # This is key related code
 KEY_DIR="$HOME/.abuild"
 KEY_CONF="$KEY_DIR/abuild.conf"
+# This makes sure that you create a valid key, and that there are no conflicts with any existing keys in case you re-install
 mkdir -p "$KEY_DIR"
-# If we do not find any valid key, then we generate it. 
-if ! find "$KEY_DIR" -type f -name "*.rsa" | grep -q .; then
-    echo "No abuild key detected — generating..."
-    abuild-keygen -a -n
-    PRIV_KEY=$(find "$KEY_DIR" -type f -name "*.rsa" ! -name "*.pub" | head -n1)
-    echo "PACKAGER_PRIVKEY=\"$PRIV_KEY\"" > "$KEY_CONF"
-    echo "Generated and configured private key: $PRIV_KEY"
-else
-    echo "Abuild key already exists"
-fi
+rm -f "$KEY_DIR"/*.rsa "$KEY_DIR"/*.rsa.pub
+echo "[DEBUG] Old local abuild keys removed"
+echo "[DEBUG] Generating a fresh abuild key..."
+abuild-keygen -a -n
+PUB_KEY=$(find "$KEY_DIR" -name '*.rsa.pub' | head -n1)
+PRIV_KEY=$(find "$KEY_DIR" -name '*.rsa' ! -name '*.pub' | head -n1)
+echo "PACKAGER_PRIVKEY=\"$PRIV_KEY\"" > "$KEY_CONF"
+echo "[DEBUG] Private key configured in $KEY_CONF"
+export PACKAGER_KEY="$PUB_KEY"
+echo "[DEBUG] Abuild will use local key at $PUB_KEY"
 
 prepare() {
     default_prepare
