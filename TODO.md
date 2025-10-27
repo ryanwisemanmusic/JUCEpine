@@ -1,6 +1,4 @@
 Essentials for TODO:
-- Patch RSA key issue
-- Ensure no arch
 - Make sure signature is trusted
 - Make sure JUCE creates index
 - Double check if this thing is fine: >>> juce: Uninstalling dependencies...
