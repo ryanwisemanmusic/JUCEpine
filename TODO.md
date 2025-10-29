@@ -1,9 +1,5 @@
 Essentials for TODO:
-- Make sure signature is trusted
-- Make sure JUCE creates index
-- Double check if this thing is fine: >>> juce: Uninstalling dependencies...
-- Fix extremely concerning error: No such package: .makedepends-juce
-- Check headers, ensure that each can be reached
+- Make sure main.cpp supports our headers (it doesn't)
 
 Finalization TODO:
 - Shell test calls in bash to JUCE, ensure we can parse through all the headers and it reflects everything added
