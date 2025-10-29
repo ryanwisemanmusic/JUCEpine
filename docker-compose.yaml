@@ -7,17 +7,22 @@ services:
       PACKAGER_NAME: "Ryan Wiseman"
       PACKAGER_EMAIL: "ryanwisemanmusic@gmail.com"
       BUILDER_HOME: "/home/builder"
+      REPODEST: "/home/builder/packages"
     volumes:
       - ./keys:/home/builder/.abuild
       - ./distfiles:/var/cache/distfiles
       - ./packages:/home/builder/packages
-    # This is required for the sake of doas, which is Docker-specific (so don't worry about APKBUILD being reflected badly)
     command: >
       /bin/sh -c "
-        echo '[DEBUG] 🗝️ Ensuring abuild key setup...' &&
-        doas mkdir -p /etc/apk/keys &&
-        doas cp /home/builder/.abuild/*.pub /etc/apk/keys/ &&
-        doas chmod 644 /etc/apk/keys/*.pub &&
-        echo '[DEBUG] ✅ Abuild key copied to /etc/apk/keys' &&
-        /home/builder/test_juce
+        echo '=== Building JUCE Package ===' &&
+        ./build-setup.sh &&
+        echo '' &&
+        echo '=== Installing JUCE Package ===' &&
+        doas apk add --allow-untrusted /home/builder/packages/home/x86_64/juce-7.0.8-r0.apk &&
+        echo '' &&
+        echo '=== Compiling Test Program ===' &&
+        g++ -std=c++17 main.cpp -o test_juce -I/usr/include/JUCE-7.0.8/modules -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 &&
+        echo '' &&
+        echo '=== Running Test ===' &&
+        ./test_juce
       "
