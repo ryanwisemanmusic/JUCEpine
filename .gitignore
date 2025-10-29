@@ -12,3 +12,5 @@ keys/-68ffc11b.rsa
 packages/home/x86_64/APKINDEX.tar.gz
 keys/-69029189.rsa
 keys/-69029189.rsa.pub
+*.rsa
+*.pub
