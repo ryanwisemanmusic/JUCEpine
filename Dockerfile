@@ -6,14 +6,20 @@ RUN apk add --no-cache \
     doas cmake ninja python3 unzip abuild build-base \
     curl gtk+3.0 ca-certificates
 
-RUN adduser -D -G abuild builder
-RUN echo "permit nopass builder as root" > /etc/doas.conf
+RUN adduser -D -G abuild builder && \
+    echo "permit nopass builder as root" > /etc/doas.conf
+
 WORKDIR /home/builder
 
-COPY APKBUILD 7.0.8.tar.gz ./
-COPY main.cpp ./
+COPY --chown=builder:builder APKBUILD 7.0.8.tar.gz ./
 
-RUN g++ -I/usr/include main.cpp -o test_juce
+COPY --chown=builder:builder build-setup.sh docker-entrypoint.sh ./
+RUN chmod +x /home/builder/build-setup.sh /home/builder/docker-entrypoint.sh
+
+COPY --chown=builder:builder main.cpp ./
+
 USER builder
 
-CMD ["./test_juce"]
+ENTRYPOINT ["/bin/bash", "/home/builder/docker-entrypoint.sh"]
+
+CMD ["/bin/bash", "/home/builder/build-setup.sh"]
