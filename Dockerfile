@@ -3,7 +3,7 @@ FROM alpine:3.22 AS final
 RUN apk add --no-cache \
     bash git freetype-dev libx11-dev libxrandr-dev libxinerama-dev \
     libxcursor-dev mesa-dev gtk+3.0-dev alsa-lib-dev curl-dev gcompat \
-    musl-dev \
+    musl-dev libcurl \
     doas cmake ninja python3 unzip abuild build-base elfutils-dev \
     curl gtk+3.0 ca-certificates
 
