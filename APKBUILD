@@ -1,6 +1,5 @@
 # Contributor: Ryan Wiseman <ryanwisemanmusic@gmail.com>
 # Maintainer: Ryan Wiseman <ryanwisemanmusic@gmail.com>
-mkdir -p "$srcdir" || true
 pkgname=juce
 pkgver=7.0.8
 pkgrel=0
@@ -18,33 +17,13 @@ builddir="$srcdir/JUCE-$pkgver"
 sha512sums="
 271f241cfb76bc1ea1838d9ba552b893d1d8df413d24b051ffb31c6c9b7eff10d18c16d3e8b03c9a910470508e2177aa2d15eab208974171d5835b8b62fcabdf  juce-$pkgver.tar.gz
 "
+
 fetch() {
-    echo ">>> juce: Starting download..."
-    
-    if command -v wget >/dev/null 2>&1; then
-        echo ">>> Using wget (BusyBox compatible)..."
-        wget -T 60 -O "$SRCDEST/juce-$pkgver.tar.gz" \
-             "https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz" && return 0
-    fi
-    
-    if command -v curl >/dev/null 2>&1; then
-        echo ">>> Using curl..."
-        curl -L --connect-timeout 30 --max-time 120 \
-             -o "$SRCDEST/juce-$pkgver.tar.gz" \
-             "https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz" && return 0
-    fi
-    
-    echo ">>> Trying default fetch..."
-    default_fetch && return 0
-    
-    if [ -f "7.0.8.tar.gz" ]; then
-        echo ">>> Using local tarball as last resort: 7.0.8.tar.gz"
-        cp "7.0.8.tar.gz" "$SRCDEST/juce-$pkgver.tar.gz" && return 0
-    fi
-    
-    echo ">>> ERROR: All download methods failed!"
-    return 1
+    echo ">>> juce: Downloading..."
+    wget -O "$SRCDEST/juce-$pkgver.tar.gz" \
+         "https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz"
 }
+
 # Because JUCE has a backend that was reliant upon depricated libexecinfo, now, we are required to use libdw from elfutils. 
 prepare() {
 	default_prepare
