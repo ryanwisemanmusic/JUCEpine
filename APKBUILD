@@ -11,7 +11,7 @@ depends=""
 makedepends="cmake samurai"
 options="!check"
 subpackages="$pkgname-doc"
-source="juce-$pkgver.tar.gz::https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz"
+source="juce-$pkgver.tar.gz"
 builddir="$srcdir/JUCE-$pkgver"
 
 sha512sums="
@@ -20,12 +20,14 @@ sha512sums="
 
 fetch() {
     echo ">>> juce: Downloading..."
-    wget -O "$SRCDEST/juce-$pkgver.tar.gz" \
+    wget -O "juce-$pkgver.tar.gz" \
          "https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz"
 }
 
 # Because JUCE has a backend that was reliant upon depricated libexecinfo, now, we are required to use libdw from elfutils. 
 prepare() {
+	mkdir -p "/home/builder/src" || true
+
 	default_prepare
 	if [ ! -d "$builddir/modules" ]; then
 		error "modules directory missing in $builddir"
