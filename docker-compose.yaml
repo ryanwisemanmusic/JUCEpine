@@ -13,16 +13,12 @@ services:
       - ./distfiles:/var/cache/distfiles
       - ./packages:/home/builder/packages
     command: >
-      /bin/sh -c "
+      /bin/bash -c "
         echo '=== Building JUCE Package ===' &&
         ./build-setup.sh &&
         echo '' &&
         echo '=== Installing JUCE Package ===' &&
         doas apk add --allow-untrusted /home/builder/packages/home/x86_64/juce-7.0.8-r0.apk &&
         echo '' &&
-        echo '=== Compiling Test Program ===' &&
-        g++ -std=c++17 main.cpp -o test_juce -I/usr/include/JUCE-7.0.8/modules -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 &&
-        echo '' &&
-        echo '=== Running Test ===' &&
-        ./test_juce
+        /bin/bash /home/builder/test-compile.sh
       "
