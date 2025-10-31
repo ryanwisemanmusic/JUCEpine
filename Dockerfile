@@ -3,9 +3,10 @@ FROM alpine:3.22 AS final
 RUN apk add --no-cache \
     bash git freetype-dev libx11-dev libxrandr-dev libxinerama-dev \
     libxcursor-dev mesa-dev gtk+3.0-dev alsa-lib-dev curl-dev gcompat \
-    musl-dev libcurl \
+    musl-dev \
     doas cmake ninja python3 unzip abuild build-base elfutils-dev \
-    curl gtk+3.0 ca-certificates
+    # I need to patch webkit2gtk-4.0 to 1, but so far, haven't found a valid APKBUILD way of doing this
+    curl gtk+3.0 ca-certificates wget webkit2gtk-4.1
 
 RUN adduser -D -G abuild builder && \
     echo "permit nopass builder as root" > /etc/doas.conf
