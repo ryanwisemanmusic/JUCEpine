@@ -22,17 +22,14 @@ target_compile_options(hello PRIVATE
 )
 
 target_compile_definitions(hello PRIVATE
+    NDEBUG
+    _NDEBUG
     JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
-    JUCE_MODAL_LOOPS_PERMITTED=1
-    JUCE_MODULE_AVAILABLE_juce_core=1
-    JUCE_STANDALONE_APPLICATION=1
-    NDEBUG=1
-    _NDEBUG=1
-    JUCE_DISABLE_NATIVE_FILECHOOSER=1
-    JUCE_DISABLE_ASSERTIONS=1
+    BACKWARD_HAS_DW=1
 )
 
 target_link_libraries(hello PRIVATE
+    dw
     pthread
     dl
     asound
