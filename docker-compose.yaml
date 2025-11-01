@@ -18,7 +18,7 @@ services:
         ./build-setup.sh &&
         echo '' &&
         echo '=== Installing JUCE Package ===' &&
-        doas apk add --allow-untrusted /home/builder/packages/home/x86_64/juce-7.0.8-r0.apk &&
+        doas apk add --allow-untrusted /home/builder/packages/home/x86_64/juce-7.0.8-r*.apk &&
         echo '' &&
         /bin/bash /home/builder/test-compile.sh
       "
