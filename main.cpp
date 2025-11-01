@@ -1,22 +1,19 @@
+//Foundational headers
 #include <iostream>
 #include <juce_core/juce_core.h>
 #include <juce_events/juce_events.h>
+#include <juce_data_structures/juce_data_structures.h>
+
+//Audio headers
 #include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_audio_devices/juce_audio_devices.h>
+#include <juce_audio_formats/juce_audio_formats.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
-/*
-Problem Headers:
-    Here below are a wide variety of headers that currently have issues. These are graphic library problems, nothing audio related
-    - #include <juce_graphics/juce_graphics.h>
-    - #include <juce_gui_basics/juce_gui_basics.h>
-*/
+//Graphics headers
+#include <juce_graphics/juce_graphics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
-/*
-Headers to test:
-//#include <juce_audio_devices/juce_audio_devices.h>
-//#include <juce_audio_formats/juce_audio_formats.h>
-//#include <juce_audio_processors/juce_audio_processors.h>
-//#include <juce_audio_utils/juce_audio_utils.h>
-*/
 
 void juce_core() {
     std::cout << "=== JUCE Core Module Test ===" << std::endl;
@@ -65,8 +62,7 @@ void juce_core() {
     
     std::cout << "#include <juce_core/juce_core.h> fully verified!" << std::endl << std::endl;
 }
-/*
-*/
+
 void juce_events() {
     std::cout << "=== JUCE Events Module Test ===" << std::endl;
     std::cout << "JUCE Events headers successfully included" << std::endl;
@@ -142,22 +138,62 @@ void juce_events() {
 
 void juce_audio_basics() {
     std::cout << "=== JUCE Audio Basics Module Test ===" << std::endl;
-    std::cout << "✓ JUCE Audio Basics headers successfully included" << std::endl;
-    std::cout << "✓ No compilation errors" << std::endl;
+    std::cout << "JUCE Audio Basics headers successfully included" << std::endl;
     
-    // Test types without requiring linking
-    using AudioBuffer = juce::AudioBuffer<float>;
-    using MidiMessage = juce::MidiMessage;
-    using MidiBuffer = juce::MidiBuffer;
+    juce::AudioBuffer<float> audioBuffer(2, 512);
+    std::cout << "AudioBuffer created: " << audioBuffer.getNumChannels() 
+              << " channels, " << audioBuffer.getNumSamples() << " samples" << std::endl;
     
-    std::cout << "✓ juce::AudioBuffer type accessible" << std::endl;
-    std::cout << "✓ juce::MidiMessage type accessible" << std::endl;
-    std::cout << "✓ juce::MidiBuffer type accessible" << std::endl;
+    juce::MidiMessage noteOn = juce::MidiMessage::noteOn(1, 60, 0.5f);
+    std::cout << "MidiMessage created: " << (noteOn.isNoteOn() ? "Note On" : "Other") 
+              << ", note: " << noteOn.getNoteNumber() 
+              << ", channel: " << noteOn.getChannel() << std::endl;
     
-    // Test constants (compile-time, no linking needed)
-    std::cout << "✓ Math constants: PI = " << juce::MathConstants<float>::pi << std::endl;
+    juce::MidiBuffer midiBuffer;
+    midiBuffer.addEvent(noteOn, 0);
+    std::cout << "MidiBuffer events: " << midiBuffer.getNumEvents() << std::endl;
     
-    std::cout << "#include <juce_audio_basics/juce_audio_basics.h> verified!" << std::endl << std::endl;
+    std::cout << "Math constants: PI = " << juce::MathConstants<float>::pi 
+              << ", sqrt(2) = " << juce::MathConstants<float>::sqrt2 << std::endl;
+    
+    juce::Range<float> gainRange(0.0f, 1.0f);
+    std::cout << "Range created: " << gainRange.getStart() << " to " << gainRange.getEnd() 
+              << ", length: " << gainRange.getLength() << std::endl;
+    
+    juce::SmoothedValue<float> smoothedGain;
+    smoothedGain.reset(0, 512);
+    smoothedGain.setTargetValue(0.8f);
+    std::cout << "SmoothedValue target: " << smoothedGain.getTargetValue() 
+              << ", current: " << smoothedGain.getCurrentValue() << std::endl;
+    
+    juce::AudioSourceChannelInfo channelInfo(audioBuffer);
+    std::cout << "AudioSourceChannelInfo created with " 
+              << channelInfo.numSamples << " samples" << std::endl;
+    
+    juce::String noteName = juce::MidiMessage::getMidiNoteName(60, true, true, 4);
+    std::cout << "MIDI note 60 name: " << noteName << std::endl;
+    
+    juce::Random random;
+    random.setSeed(12345);
+    float randomValue = random.nextFloat();
+    std::cout << "Random value generated: " << randomValue << std::endl;
+    
+    float dbValue = juce::Decibels::gainToDecibels(0.5f);
+    float gainValue = juce::Decibels::decibelsToGain(-6.0f);
+    std::cout << "Decibels conversion: 0.5 gain = " << dbValue << " dB, "
+              << "-6 dB = " << gainValue << " gain" << std::endl;
+    
+    juce::MidiFile midiFile;
+    midiFile.setTicksPerQuarterNote(960);
+    std::cout << "MidiFile created with ticks per quarter: " << midiFile.getTimeFormat() << std::endl;
+    
+    std::cout << "#include <juce_audio_basics/juce_audio_basics.h> fully verified!" << std::endl << std::endl;
+}
+
+void juce_data_structures() {
+    std::cout << "=== JUCE Data Structures Module Test ===" << std::endl;
+    std::cout << "JUCE Data Structures headers successfully included" << std::endl;
+
 }
 
 int main() {
@@ -168,6 +204,7 @@ int main() {
     juce_core();
     juce_events();
     juce_audio_basics();
+    juce_data_structures();
     
     return 0;
 }
