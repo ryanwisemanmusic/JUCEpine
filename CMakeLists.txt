@@ -28,9 +28,53 @@ target_compile_definitions(hello PRIVATE
     BACKWARD_HAS_DW=1
 )
 
-target_link_libraries(hello PRIVATE
-    dw
-    pthread
-    dl
-    asound
-)
+find_library(JUCE_CORE_LIB NAMES juce_core libjuce_core PATHS /usr/lib /usr/local/lib)
+find_library(JUCE_EVENTS_LIB NAMES juce_events libjuce_events PATHS /usr/lib /usr/local/lib)
+find_library(JUCE_DATASTRUCTURES_LIB NAMES juce_data_structures libjuce_data_structures PATHS /usr/lib /usr/local/lib)
+
+if(JUCE_CORE_LIB AND JUCE_EVENTS_LIB AND JUCE_DATASTRUCTURES_LIB)
+    message(STATUS "Found JUCE shared libraries: ${JUCE_CORE_LIB}, ${JUCE_EVENTS_LIB}, ${JUCE_DATASTRUCTURES_LIB}")
+    target_link_libraries(hello PRIVATE
+        ${JUCE_CORE_LIB}
+        ${JUCE_EVENTS_LIB}
+        ${JUCE_DATASTRUCTURES_LIB}
+        dw
+        pthread
+        dl
+        asound
+    )
+else()
+    message(WARNING "JUCE shared libraries not found - falling back to compiling JUCE module sources into the binary")
+
+    set(JUCE_MODULES
+        juce_core
+        juce_events
+        juce_data_structures
+    )
+
+    foreach(mod IN LISTS JUCE_MODULES)
+        file(GLOB_RECURSE MOD_SRCS
+            "${CMAKE_SOURCE_DIR}/JUCE/modules/${mod}/*.cpp"
+            "${CMAKE_SOURCE_DIR}/JUCE/modules/${mod}/**/*.cpp"
+        )
+        if(MOD_SRCS)
+            message(STATUS "Adding ${mod} sources (${MOD_SRCS})")
+            target_sources(hello PRIVATE ${MOD_SRCS})
+        else()
+            message(WARNING "No sources found for JUCE module: ${mod}")
+        endif()
+    endforeach()
+
+    target_link_libraries(hello PRIVATE
+        dw
+        pthread
+        dl
+        asound
+    )
+endif()
+
+if(EXISTS "/usr/include/JUCE-${PROJECT_VERSION}")
+    target_include_directories(hello PRIVATE /usr/include/JUCE-${PROJECT_VERSION}/modules)
+endif()
+
+target_include_directories(hello SYSTEM PRIVATE /usr/include/JUCE-7.0.8/modules)
