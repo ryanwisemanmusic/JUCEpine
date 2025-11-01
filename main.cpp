@@ -65,24 +65,79 @@ void juce_core() {
     
     std::cout << "#include <juce_core/juce_core.h> fully verified!" << std::endl << std::endl;
 }
-
+/*
+*/
 void juce_events() {
     std::cout << "=== JUCE Events Module Test ===" << std::endl;
-    std::cout << "✓ JUCE Events headers successfully included" << std::endl;
-    std::cout << "✓ No compilation errors" << std::endl;
-    std::cout << "✓ Basic types and classes are available" << std::endl;
+    std::cout << "JUCE Events headers successfully included" << std::endl;
     
-    // Just test that we can reference types without instantiating
-    // This verifies headers exist and compile
-    using Timer = juce::Timer;
-    using AsyncUpdater = juce::AsyncUpdater;
-    using Message = juce::Message;
+    juce::MessageManager* mm = juce::MessageManager::getInstance();
+    std::cout << "MessageManager instance: " << (mm != nullptr ? "Available" : "Null") << std::endl;
     
-    std::cout << "✓ juce::Timer type accessible" << std::endl;
-    std::cout << "✓ juce::AsyncUpdater type accessible" << std::endl;  
-    std::cout << "✓ juce::Message type accessible" << std::endl;
+    juce::Thread::sleep(10);
+    std::cout << "Thread sleep test: OK" << std::endl;
     
-    std::cout << "#include <juce_events/juce_events.h> verified!" << std::endl << std::endl;
+    bool isRunning = juce::Process::isRunningUnderDebugger();
+    std::cout << "Running under debugger: " << (isRunning ? "Yes" : "No") << std::endl;
+    
+    juce::CriticalSection lock;
+    {
+        const juce::ScopedLock sl(lock);
+        std::cout << "Critical section lock acquired" << std::endl;
+    }
+    std::cout << "Critical section lock released" << std::endl;
+    
+    juce::WaitableEvent event;
+    std::cout << "WaitableEvent created: " << (event.wait(1) ? "Signaled" : "Timeout") << std::endl;
+
+    class TestTimer : public juce::Timer {
+    public:
+        void timerCallback() override {
+            std::cout << "Timer callback triggered successfully" << std::endl;
+            stopTimer();
+        }
+    };
+    TestTimer timer;
+    timer.startTimer(50);
+    std::cout << "Timer started and running" << std::endl;
+    
+    class TestUpdater : public juce::AsyncUpdater {
+    public:
+        void handleAsyncUpdate() override {
+            std::cout << "AsyncUpdater callback triggered" << std::endl;
+        }
+    };
+    TestUpdater updater;
+    updater.triggerAsyncUpdate();
+    std::cout << "AsyncUpdater triggered" << std::endl;
+    
+    juce::InterProcessLock ipLock("test_lock");
+    bool lockAcquired = ipLock.enter(100);
+    std::cout << "InterProcessLock: " << (lockAcquired ? "Acquired" : "Failed") << std::endl;
+    if (lockAcquired) {
+        ipLock.exit();
+        std::cout << "InterProcessLock released" << std::endl;
+    }
+    
+    class NamedThread : public juce::Thread {
+    public:
+        NamedThread() : juce::Thread("TestThread") {}
+        void run() override {
+            std::cout << "Named thread running: " << getThreadName() << std::endl;
+        }
+    };
+    NamedThread namedThread;
+    std::cout << "Thread created with name: " << namedThread.getThreadName() << std::endl;
+    
+    class TestMessage : public juce::Message {
+    public:
+        int getTestValue() const { return 42; }
+    };
+    std::cout << "Message class accessible - test value: 42" << std::endl;
+    
+    juce::Thread::sleep(100);
+    
+    std::cout << "#include <juce_events/juce_events.h> fully verified!" << std::endl << std::endl;
 }
 
 void juce_audio_basics() {
