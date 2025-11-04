@@ -14,7 +14,10 @@ clean:
 	docker rmi jucepine 2>/dev/null || true
 	docker system prune -f
 	rm -f build.log run.log
-	rm -rf output packages distfiles keys
+	find packages -name "*.apk" -delete 2>/dev/null || true
+	find packages -name "APKINDEX*" -delete 2>/dev/null || true
+	rm -rf keys/*.rsa* 2>/dev/null || true
+	rm -rf keys/abuild.conf 2>/dev/null || true
 	mkdir -p keys packages distfiles
 
 .PHONY: build run run-via-bash clean
