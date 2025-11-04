@@ -3,7 +3,7 @@
 pkgname=juce
 pkgver=7.0.8
 pkgrel=1
-pkgdesc="Cross-platform C++ framework for audio applications"
+pkgdesc="Headless JUCE framework for audio applications"
 url="https://juce.com/"
 arch="x86_64"
 license="GPL-3.0-or-later"
@@ -16,7 +16,6 @@ builddir="$srcdir/JUCE-$pkgver"
 sha512sums="
 271f241cfb76bc1ea1838d9ba552b893d1d8df413d24b051ffb31c6c9b7eff10d18c16d3e8b03c9a910470508e2177aa2d15eab208974171d5835b8b62fcabdf  juce-$pkgver.tar.gz
 "
-
 prepare() {
     default_prepare
     if [ ! -d "$builddir/modules" ]; then
@@ -246,7 +245,7 @@ target_compile_definitions(juce_core PUBLIC
     JUCE_USE_CURL=0
     JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1
 )
-target_compile_options(juce_core PRIVATE -w)  # Suppress warnings during build
+target_compile_options(juce_core PRIVATE -w)
 target_link_libraries(juce_core PUBLIC dw pthread dl)
 
 # juce_events
@@ -284,6 +283,14 @@ target_include_directories(juce_gui_basics PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 target_compile_options(juce_gui_basics PRIVATE -w)
 target_link_libraries(juce_gui_basics PUBLIC juce_core juce_graphics juce_events X11 Xext Xrandr Xcomposite Xcursor)
 
+# juce_gui_extra
+add_library(juce_gui_extra STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_gui_extra/juce_gui_extra.cpp
+)
+target_include_directories(juce_gui_extra PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_gui_extra PRIVATE -w)
+target_link_libraries(juce_gui_extra PUBLIC juce_gui_basics)
+
 # juce_audio_basics
 add_library(juce_audio_basics STATIC 
     ${CMAKE_SOURCE_DIR}/modules/juce_audio_basics/juce_audio_basics.cpp
@@ -319,6 +326,118 @@ target_include_directories(juce_audio_processors PUBLIC ${CMAKE_SOURCE_DIR}/modu
 target_compile_options(juce_audio_processors PRIVATE -w)
 target_link_libraries(juce_audio_processors PUBLIC juce_gui_basics juce_audio_basics)
 
+# juce_audio_utils
+add_library(juce_audio_utils STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_audio_utils/juce_audio_utils.cpp
+)
+target_include_directories(juce_audio_utils PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_audio_utils PRIVATE -w)
+target_link_libraries(juce_audio_utils PUBLIC juce_gui_extra juce_audio_devices juce_audio_formats juce_audio_processors)
+
+# juce_audio_plugin_client (special module - only build if .cpp exists)
+if(EXISTS ${CMAKE_SOURCE_DIR}/modules/juce_audio_plugin_client/juce_audio_plugin_client.cpp)
+add_library(juce_audio_plugin_client STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_audio_plugin_client/juce_audio_plugin_client.cpp
+)
+target_include_directories(juce_audio_plugin_client PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_audio_plugin_client PRIVATE -w)
+target_link_libraries(juce_audio_plugin_client PUBLIC juce_audio_processors juce_gui_basics)
+endif()
+
+# juce_dsp
+add_library(juce_dsp STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_dsp/juce_dsp.cpp
+)
+target_include_directories(juce_dsp PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_dsp PRIVATE -w)
+target_link_libraries(juce_dsp PUBLIC juce_audio_basics)
+
+# juce_cryptography
+add_library(juce_cryptography STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_cryptography/juce_cryptography.cpp
+)
+target_include_directories(juce_cryptography PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_cryptography PRIVATE -w)
+target_link_libraries(juce_cryptography PUBLIC juce_core)
+
+# juce_opengl
+add_library(juce_opengl STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_opengl/juce_opengl.cpp
+)
+target_include_directories(juce_opengl PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_opengl PRIVATE -w)
+target_link_libraries(juce_opengl PUBLIC juce_gui_extra GL)
+
+# juce_osc
+add_library(juce_osc STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_osc/juce_osc.cpp
+)
+target_include_directories(juce_osc PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_osc PRIVATE -w)
+target_link_libraries(juce_osc PUBLIC juce_core juce_events)
+
+# juce_video
+add_library(juce_video STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_video/juce_video.cpp
+)
+target_include_directories(juce_video PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_video PRIVATE -w)
+target_link_libraries(juce_video PUBLIC juce_gui_extra)
+
+# juce_analytics
+add_library(juce_analytics STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_analytics/juce_analytics.cpp
+)
+target_include_directories(juce_analytics PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_analytics PRIVATE -w)
+target_link_libraries(juce_analytics PUBLIC juce_core)
+
+# juce_animation (if exists - some versions may not have this)
+if(EXISTS ${CMAKE_SOURCE_DIR}/modules/juce_animation/juce_animation.cpp)
+add_library(juce_animation STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_animation/juce_animation.cpp
+)
+target_include_directories(juce_animation PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_animation PRIVATE -w)
+target_link_libraries(juce_animation PUBLIC juce_gui_basics)
+endif()
+
+# juce_box2d
+add_library(juce_box2d STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_box2d/juce_box2d.cpp
+)
+target_include_directories(juce_box2d PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_box2d PRIVATE -w)
+target_link_libraries(juce_box2d PUBLIC juce_graphics)
+
+# juce_javascript (if exists - depends on version)
+if(EXISTS ${CMAKE_SOURCE_DIR}/modules/juce_javascript/juce_javascript.cpp)
+add_library(juce_javascript STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_javascript/juce_javascript.cpp
+)
+target_include_directories(juce_javascript PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_javascript PRIVATE -w)
+target_link_libraries(juce_javascript PUBLIC juce_core)
+endif()
+
+# juce_midi_ci (if exists - newer versions)
+if(EXISTS ${CMAKE_SOURCE_DIR}/modules/juce_midi_ci/juce_midi_ci.cpp)
+add_library(juce_midi_ci STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_midi_ci/juce_midi_ci.cpp
+)
+target_include_directories(juce_midi_ci PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_midi_ci PRIVATE -w)
+target_link_libraries(juce_midi_ci PUBLIC juce_audio_basics)
+endif()
+
+# juce_product_unlocking
+add_library(juce_product_unlocking STATIC 
+    ${CMAKE_SOURCE_DIR}/modules/juce_product_unlocking/juce_product_unlocking.cpp
+)
+target_include_directories(juce_product_unlocking PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_compile_options(juce_product_unlocking PRIVATE -w)
+target_link_libraries(juce_product_unlocking PUBLIC juce_cryptography)
+
 # Install targets
 install(TARGETS 
     juce_core 
@@ -326,13 +445,37 @@ install(TARGETS
     juce_data_structures 
     juce_graphics 
     juce_gui_basics
+    juce_gui_extra
     juce_audio_basics
     juce_audio_devices
     juce_audio_formats
     juce_audio_processors
+    juce_audio_utils
+    juce_dsp
+    juce_cryptography
+    juce_opengl
+    juce_osc
+    juce_video
+    juce_analytics
+    juce_box2d
+    juce_product_unlocking
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
 )
+
+# Install conditional targets
+if(TARGET juce_audio_plugin_client)
+    install(TARGETS juce_audio_plugin_client ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+endif()
+if(TARGET juce_animation)
+    install(TARGETS juce_animation ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+endif()
+if(TARGET juce_javascript)
+    install(TARGETS juce_javascript ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+endif()
+if(TARGET juce_midi_ci)
+    install(TARGETS juce_midi_ci ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+endif()
 
 install(DIRECTORY modules/
     DESTINATION include/JUCE-${PROJECT_VERSION}/modules
@@ -340,11 +483,11 @@ install(DIRECTORY modules/
 )
 EOF
     cmake -B build \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_CXX_FLAGS="-fPIC -DNDEBUG"
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_CXX_FLAGS="-fPIC -DNDEBUG" 2>&1 | grep -v "WARNING: juce-examples\*: No arch specific binaries found" | grep -v "WARNING: juce-extras\*: No arch specific binaries found" | grep -v "WARNING: juce-examples\*: Split function set arch=" | grep -v "WARNING: juce-extras\*: Split function set arch="
     echo "=== Starting compilation (this may take several minutes) ==="
-    cmake --build build --parallel "$(nproc)" || {
+    cmake --build build --parallel "$(nproc)" 2>&1 | grep -v "WARNING:.*No arch specific binaries found" || {
         echo "=== Build failed, showing last 50 lines of error ==="
         tail -50 "$builddir/build/CMakeFiles/CMakeError.log" 2>/dev/null || true
         return 1
@@ -358,24 +501,15 @@ package() {
     cd "$builddir"
     
     echo "=== Installing JUCE static libraries ==="
-    install -dm755 "$pkgdir/usr/lib"
-    # Install all built libraries
-    for lib in build/*.a; do
-        if [ -f "$lib" ]; then
-            install -Dm644 "$lib" "$pkgdir/usr/lib/$(basename $lib)"
-            echo "Installed: $(basename $lib)"
-        fi
-    done
     
-    # Install headers
-    install -dm755 "$pkgdir/usr/include/JUCE-$pkgver"
-    cp -r "$builddir/modules" "$pkgdir/usr/include/JUCE-$pkgver/"
+    # Use CMake install command which properly installs all targets
+    DESTDIR="$pkgdir" cmake --install build
     
     # Verify libraries were installed
     echo "=== Verifying installed libraries ==="
     find "$pkgdir/usr/lib" -name "libjuce*.a" -exec ls -lh {} \;
     
-    # Create pkg-config file
+    # Create pkg-config file with all modules
     install -Dm644 /dev/stdin "$pkgdir/usr/lib/pkgconfig/juce.pc" <<-EOF
 prefix=/usr
 exec_prefix=\${prefix}
@@ -388,10 +522,10 @@ Version: $pkgver
 Requires: alsa freetype2
 Requires.private: libdw
 Cflags: -I\${includedir} -DNDEBUG -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -DBACKWARD_HAS_DW=1 -include juce_core/juce_core/juce-config.h
-Libs: -L\${libdir} -ljuce_audio_processors -ljuce_audio_formats -ljuce_audio_devices -ljuce_audio_basics -ljuce_gui_basics -ljuce_graphics -ljuce_data_structures -ljuce_events -ljuce_core -ldw -lasound -lfreetype -lX11 -lXext -lXrandr -lXcomposite -lXcursor -ldl -lpthread
+Libs: -L\${libdir} -ljuce_audio_plugin_client -ljuce_audio_utils -ljuce_audio_processors -ljuce_audio_formats -ljuce_audio_devices -ljuce_audio_basics -ljuce_dsp -ljuce_gui_extra -ljuce_gui_basics -ljuce_graphics -ljuce_opengl -ljuce_video -ljuce_osc -ljuce_cryptography -ljuce_analytics -ljuce_box2d -ljuce_product_unlocking -ljuce_data_structures -ljuce_events -ljuce_core -ldw -lasound -lfreetype -lX11 -lXext -lXrandr -lXcomposite -lXcursor -ldl -lpthread -lGL
 EOF
     
-    # Create CMake config
+    # Create CMake config with all modules
     install -dm755 "$pkgdir/usr/lib/cmake/JUCE"
     install -Dm644 /dev/stdin "$pkgdir/usr/lib/cmake/JUCE/JUCEConfig.cmake" <<-EOF
 set(JUCE_FOUND TRUE)
@@ -399,12 +533,23 @@ set(JUCE_VERSION $pkgver)
 set(JUCE_INCLUDE_DIRS /usr/include/JUCE-$pkgver/modules)
 set(JUCE_MODULES_PATH /usr/include/JUCE-$pkgver/modules)
 set(JUCE_LIBRARIES 
+    juce_audio_plugin_client
+    juce_audio_utils
     juce_audio_processors 
     juce_audio_formats 
     juce_audio_devices 
     juce_audio_basics 
+    juce_dsp
+    juce_gui_extra
     juce_gui_basics 
     juce_graphics 
+    juce_opengl
+    juce_video
+    juce_osc
+    juce_cryptography
+    juce_analytics
+    juce_box2d
+    juce_product_unlocking
     juce_data_structures 
     juce_events 
     juce_core
@@ -413,27 +558,41 @@ add_compile_definitions(JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1)
 add_compile_definitions(BACKWARD_HAS_DW=1)
 EOF
     
-    # Create juce-config binary
+    # Create juce-config binary with all modules listed
     install -dm755 "$pkgdir/usr/bin"
     cat > "$pkgdir/usr/bin/juce-config" << 'BINEOF'
 #!/bin/sh
 cat << INFO
-JUCE Framework version $pkgver
-Modules installed to: /usr/include/JUCE-$pkgver/modules
+JUCE Framework version 7.0.8
+Modules installed to: /usr/include/JUCE-7.0.8/modules
 Libraries installed to: /usr/lib
 
 Available modules:
-  - juce_core
-  - juce_events
-  - juce_data_structures
-  - juce_graphics
-  - juce_gui_basics
+  - juce_analytics
+  - juce_animation (if available)
   - juce_audio_basics
   - juce_audio_devices
   - juce_audio_formats
+  - juce_audio_plugin_client
   - juce_audio_processors
+  - juce_audio_utils
+  - juce_box2d
+  - juce_core
+  - juce_cryptography
+  - juce_data_structures
+  - juce_dsp
+  - juce_events
+  - juce_graphics
+  - juce_gui_basics
+  - juce_gui_extra
+  - juce_javascript (if available)
+  - juce_midi_ci (if available)
+  - juce_opengl
+  - juce_osc
+  - juce_product_unlocking
+  - juce_video
 
-Link flags: -ljuce_audio_processors -ljuce_audio_formats -ljuce_audio_devices -ljuce_audio_basics -ljuce_gui_basics -ljuce_graphics -ljuce_data_structures -ljuce_events -ljuce_core -ldw -lasound -lfreetype -lX11 -lXext -lXrandr -lXcomposite -lXcursor -ldl -lpthread
+Link flags: -ljuce_audio_plugin_client -ljuce_audio_utils -ljuce_audio_processors -ljuce_audio_formats -ljuce_audio_devices -ljuce_audio_basics -ljuce_dsp -ljuce_gui_extra -ljuce_gui_basics -ljuce_graphics -ljuce_opengl -ljuce_video -ljuce_osc -ljuce_cryptography -ljuce_analytics -ljuce_box2d -ljuce_product_unlocking -ljuce_data_structures -ljuce_events -ljuce_core -ldw -lasound -lfreetype -lX11 -lXext -lXrandr -lXcomposite -lXcursor -ldl -lpthread -lGL
 
 Use pkg-config for automatic configuration:
   pkg-config --cflags --libs juce
