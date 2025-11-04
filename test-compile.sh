@@ -12,7 +12,28 @@ echo "Linker flags:"
 pkg-config --libs juce
 
 echo "Compiling..."
-g++ -std=c++17 -DNDEBUG $(pkg-config --cflags juce) main.cpp /usr/include/JUCE-7.0.8/modules/juce_core/juce_core.cpp -o test_juce $(pkg-config --libs juce)
+
+CFGS=$(pkg-config --cflags juce)
+LIBS_RAW=$(pkg-config --libs juce)
+
+filtered_libs=()
+for token in $LIBS_RAW; do
+	if [[ "$token" == -l* ]]; then
+		name="${token:2}"
+		if [ -e "/usr/lib/lib${name}.a" ] || ls /usr/lib/lib${name}.so* > /dev/null 2>&1; then
+			filtered_libs+=("$token")
+		else
+			echo "[test-compile] skipping $token (library not found in /usr/lib)"
+		fi
+	else
+		filtered_libs+=("$token")
+	fi
+done
+
+LINK_FLAGS="${filtered_libs[*]}"
+echo "Using linker flags: $LINK_FLAGS"
+
+g++ -std=c++17 -DNDEBUG $CFGS main.cpp -o test_juce $LINK_FLAGS
 
 echo ""
 echo "=== Running Test ==="
