@@ -626,7 +626,9 @@ subpackages="$pkgname-doc $pkgname-examples $pkgname-extras"
 
 # Note: webkit2gtk-4.0 is not included. It would not upgrade to 4.1, therefore, I've disabled it via grep
 # Language modules have been disabled for now, due to their inability to be incorporated into Alpine properly.
-# Through testing this, I have incorporated checks on the library component for juce_core, juce_events, and juce_audio_basics
+# While each module has supposedly been added to this APKBUILD file (from what I can tell), I cannot ensure that every tiny little thing works.
 # When you invoke stuff explicitly from the library, and not just headers-only stuff, you successfully can call without things being undefined.
 # This will receive additional updates if there's bugs. JUCE is a massive framework, and therefore, it requires more code than 90% of Alpine packages.
 # Note: I'll upgrade this to V8 at some point, I was just worried that V8 would have some even stricter standards
+
+# The only thing missing is: audio_plugin_client. Weird, I'll try to test this out later
