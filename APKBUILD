@@ -7,8 +7,24 @@ pkgdesc="Headless JUCE framework for audio applications"
 url="https://juce.com/"
 arch="x86_64"
 license="GPL-3.0-or-later"
-depends="libdw alsa-lib freetype"
-makedepends="cmake samurai alsa-lib-dev freetype-dev libx11-dev libxrandr-dev libxcomposite-dev libxcursor-dev libxext-dev"
+depends="
+alsa-lib
+curl
+freetype
+gcompat
+libdw
+"
+makedepends="
+alsa-lib-dev
+cmake
+freetype-dev
+libx11-dev
+libxcomposite-dev
+libxcursor-dev
+libxext-dev
+libxrandr-dev
+samurai
+"
 options="!check"
 subpackages="$pkgname-doc $pkgname-examples $pkgname-extras"
 source="juce-$pkgver.tar.gz::https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz"
