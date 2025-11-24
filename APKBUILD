@@ -14,6 +14,7 @@ freetype
 gcompat
 gtk+3.0
 libdw
+webkit2gtk
 "
 makedepends="
 alsa-lib-dev
@@ -25,10 +26,12 @@ libx11-dev
 libxcomposite-dev
 libxcursor-dev
 libxext-dev
+libxinerama-dev
 libxrandr-dev
 mesa-dev
 musl-dev
 samurai
+webkit2gtk-dev
 "
 options="!check"
 subpackages="$pkgname-doc $pkgname-examples $pkgname-extras"
