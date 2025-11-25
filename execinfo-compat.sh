@@ -1,5 +1,4 @@
 #!/bin/sh
-# Create execinfo.h compatibility header for Alpine musl
 install -Dm644 /dev/stdin "$builddir/modules/juce_core/juce_core/execinfo.h" <<'EOF'
 #pragma once
 #ifdef __cplusplus
