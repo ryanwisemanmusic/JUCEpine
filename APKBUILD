@@ -153,7 +153,6 @@ extras() {
 }
 # Add subpackages related to docs, examples, and extras
 subpackages="$pkgname-doc $pkgname-examples $pkgname-extras"
-
 # Note: webkit2gtk-4.0 is not included. It would not upgrade to 4.1, therefore, I've disabled it via grep
 # Language modules have been disabled for now, due to their inability to be incorporated into Alpine properly.
 # While each module has supposedly been added to this APKBUILD file (from what I can tell), I cannot ensure that every tiny little thing works.
