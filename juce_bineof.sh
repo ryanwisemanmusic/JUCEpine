@@ -1,11 +1,6 @@
 #!/bin/sh
-
-# cmake_bineof.sh - JUCE configuration binary script generation
-
 create_juce_config_binary() {
     local pkgdir="$1"
-    
-    # Create juce-config binary with all modules listed
     install -dm755 "$pkgdir/usr/bin"
     cat > "$pkgdir/usr/bin/juce-config" << 'BINEOF'
 #!/bin/sh
