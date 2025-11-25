@@ -1,12 +1,7 @@
 #!/bin/sh
-
-# cmake_eof.sh - JUCE CMake configuration file generation
-
 create_cmake_config() {
     local pkgdir="$1"
     local pkgver="$2"
-    
-    # Create CMake config with all modules
     install -dm755 "$pkgdir/usr/lib/cmake/JUCE"
     install -Dm644 /dev/stdin "$pkgdir/usr/lib/cmake/JUCE/JUCEConfig.cmake" <<-EOF
 set(JUCE_FOUND TRUE)
