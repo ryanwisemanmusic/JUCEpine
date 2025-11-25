@@ -14,7 +14,6 @@ freetype
 gcompat
 gtk+3.0
 libdw
-webkit2gtk
 "
 makedepends="
 alsa-lib-dev
@@ -31,14 +30,16 @@ libxrandr-dev
 mesa-dev
 musl-dev
 samurai
-webkit2gtk-dev
 "
 options="!check"
 subpackages="$pkgname-doc $pkgname-examples $pkgname-extras"
-source="juce-$pkgver.tar.gz::https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz"
+source="juce-$pkgver.tar.gz::https://github.com/juce-framework/JUCE/archive/refs/tags/$pkgver.tar.gz
+	execinfo-compat.sh
+	"
 builddir="$srcdir/JUCE-$pkgver"
 sha512sums="
 271f241cfb76bc1ea1838d9ba552b893d1d8df413d24b051ffb31c6c9b7eff10d18c16d3e8b03c9a910470508e2177aa2d15eab208974171d5835b8b62fcabdf  juce-$pkgver.tar.gz
+fa51e31afe89f338165aa4dc7e60f0786d62503c3b7df1c6ee82d0fba1599dc7df68d879782b8aa949cd05b418a85431f5dcacb8549e991eb584a8841e978d11  execinfo-compat.sh
 "
 prepare() {
     default_prepare
@@ -60,47 +61,10 @@ prepare() {
         sed -i 's/webkit2gtk-4\.0//g' {} \;
     find "$builddir/modules" -name "*.cmake" -type f -exec \
         sed -i '/webkit2gtk/d' {} \;
-    # Create execinfo.h compatibility header because libexecinfo is not available on Alpine since 3.17, so we essentially create our own that'll fit with elfutils-dev.
-	# Since it is a bit finnicky on the backtrace requirements being met (I read that its mixed whether or not elfutils-dev will really handle your issue of missing execinfo.h),
-	# this project needs some particular files that are best generated at the APKBUILD level, since elfutils-dev on my end is missing execinfo.h (or at least one that's JUCE compatible)
-    install -Dm644 /dev/stdin "$builddir/modules/juce_core/juce_core/execinfo.h" <<-'EXECINFO'
-#pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
-#if defined(__has_include)
-  #if __has_include(<elfutils/libdwfl.h>)
-  #endif
-#endif
-#ifndef _EXECINFO_H
-#define _EXECINFO_H 1
-int backtrace(void **buffer, int size) __attribute__((weak));
-char **backtrace_symbols(void *const *buffer, int size) __attribute__((weak));
-void backtrace_symbols_fd(void *const *buffer, int size, int fd) __attribute__((weak));
 
-__attribute__((weak))
-int backtrace(void **buffer, int size) {
-    (void)buffer; (void)size;
-    return 0;
-}
+    # Handle execinfo. This will ensure that we handle some of the backtrace functionality is handled under musl instead
+    . "$srcdir/execinfo-compat.sh"
 
-__attribute__((weak))
-char **backtrace_symbols(void *const *buffer, int size) {
-    (void)buffer; (void)size;
-    return (char**)0;
-}
-
-__attribute__((weak))
-void backtrace_symbols_fd(void *const *buffer, int size, int fd) {
-    (void)buffer; (void)size; (void)fd;
-}
-
-#endif /* _EXECINFO_H */
-
-#ifdef __cplusplus
-}
-#endif
-EXECINFO
     # Create locale compatibility header
     install -Dm644 /dev/stdin "$builddir/modules/juce_core/native/locale_compat.h" <<-'LOCALE_COMPAT'
 #pragma once
@@ -113,21 +77,21 @@ EXECINFO
 #define _NL_ADDRESS_COUNTRY_AB2 0x1001
 #endif
 LOCALE_COMPAT
-    # Fix errno.h and execinfo.h includes
+
+    # Fix errno.h includes
     find "$builddir/modules" -type f \( -name "*.cpp" -o -name "*.h" \) -exec \
         sed -i 's|#include <sys/errno.h>|#include <errno.h>|g' {} \;
-    sed -i 's|#include <execinfo.h>|#include "juce_core/execinfo.h"|g' \
-        "$builddir/modules/juce_core/juce_core.cpp"
-    find "$builddir/modules" -type f \( -name "*.cpp" -o -name "*.h" \) -exec \
-        sed -i 's|#include <execinfo.h>|#include "juce_core/execinfo.h"|g' {} \;
+
     # Add locale_compat.h include
     local stats_file="$builddir/modules/juce_core/native/juce_SystemStats_linux.cpp"
     sed -i '1i #include "locale_compat.h"' "$stats_file"
+
     # Fix stat64 for musl
     sed -i 's/struct stat64/struct stat/g' \
         "$builddir/modules/juce_core/native/juce_SharedCode_posix.h"
     sed -i 's/stat64/stat/g' \
         "$builddir/modules/juce_core/native/juce_SharedCode_posix.h"
+
     # Patch locale functions using Python
     cat > /tmp/fix_juce_locale.py << 'PYTHON_SCRIPT'
 import sys
@@ -205,10 +169,9 @@ print("Successfully patched locale functions")
 PYTHON_SCRIPT
 
     python3 /tmp/fix_juce_locale.py "$stats_file"
-    # Idk why, but there was a missing tuple library from this part of JUCE. We basically are forced to patch things at an APKBUILD level
-	# Never fight JUCE and say that you are right, JUCE will always be right
+
     sed -i '1i #include <tuple>' "$builddir/modules/juce_core/containers/juce_FixedSizeFunction_test.cpp"
-    # juce_core requires some very specific standards, so we config this to work in Alpine so it stops yelling at us
+
     mkdir -p "$builddir/modules/juce_core/juce_core"
     install -Dm644 /dev/stdin "$builddir/modules/juce_core/juce_core/juce-config.h" <<-'JUCECONFIG'
 #pragma once
