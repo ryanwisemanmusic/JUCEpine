@@ -12,7 +12,7 @@ RUN adduser -D -G abuild builder && \
 
 WORKDIR /home/builder
 
-COPY --chown=builder:builder APKBUILD 7.0.8.tar.gz execinfo-compat.sh *.patch ./
+COPY --chown=builder:builder APKBUILD 7.0.8.tar.gz execinfo-compat.sh locale_compat.sh locale_python_script.sh juce_config.sh cmake.sh juce_bineof.sh juce_cmake_eof.sh juce_pc_eof.sh *.patch ./
 
 COPY --chown=builder:builder build-setup.sh docker-entrypoint.sh test-compile.sh ./
 RUN chmod +x /home/builder/build-setup.sh /home/builder/docker-entrypoint.sh /home/builder/test-compile.sh
