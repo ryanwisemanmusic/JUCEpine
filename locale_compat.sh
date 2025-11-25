@@ -1,11 +1,6 @@
 #!/bin/sh
-
-# locale_compat.sh - JUCE locale compatibility fixes for musl
-
 create_locale_compat_header() {
     local builddir="$1"
-    
-    # Create locale compatibility header
     install -Dm644 /dev/stdin "$builddir/modules/juce_core/native/locale_compat.h" <<-'LOCALE_COMPAT'
 #pragma once
 // Provide missing nl_item constants for musl
