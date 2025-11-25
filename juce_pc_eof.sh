@@ -1,12 +1,7 @@
 #!/bin/sh
-
-# juce_pc_eof.sh - JUCE pkg-config file generation
-
 create_pkg_config() {
     local pkgdir="$1"
     local pkgver="$2"
-    
-    # Create pkg-config file with all modules
     install -Dm644 /dev/stdin "$pkgdir/usr/lib/pkgconfig/juce.pc" <<-EOF
 prefix=/usr
 exec_prefix=\${prefix}
