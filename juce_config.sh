@@ -1,10 +1,6 @@
 #!/bin/sh
-
-# juce_config.sh - JUCE configuration header setup
-
 create_juce_config_header() {
     local builddir="$1"
-    
     mkdir -p "$builddir/modules/juce_core/juce_core"
     install -Dm644 /dev/stdin "$builddir/modules/juce_core/juce_core/juce-config.h" <<-'JUCECONFIG'
 #pragma once
