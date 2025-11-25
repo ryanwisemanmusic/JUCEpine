@@ -1,0 +1,11 @@
+# JUCE for Alpine Linux
+
+This project builds the JUCE framework for Alpine Linux. JUCE is a framework, which means that the amount of additional code you need to make it work is much more demanding and detailed than a standard library. This was one of the biggest hassles to get working, given that JUCE is a massive framework that does not play nicely with the minimalism of Alpine Linux. There is so much that can go wrong given the strictness of what JUCE needs to exist. 
+
+The way we handle a lot of the problems is through shell scripting. Whether this is package config, handling backtrace demands; avoid tweaking the APKBUILD with anything that is inline. Creating files is an example of something that can lead to hundreds of lines of code, which is why you are to only handle this through shell scripts. It will also allow you to narrow down your bugs easier. This is why it may be better if you wanna fix these problems, to become a contributor and NOT a maintainer. Since you'll be able to tweak the shell scripts instead of hoping that a .patch file will solve said problems.
+
+Some important notes:
+- Since backtracing was lost when glibc was dropped from Alpine Linux, this is what execinfo-compat.sh is for (doing the backtrace related stuff that isn't even in elfutils, which elfutils was supposed to have some backtrace related stuff for musl). Do I know if this is ideal in the way I've done it? No, so if you wanna fix it, just ensture that you aren't breaking the build. I am running this in a containerized version of Alpine and it works, so hopefully there isn't some issue that is outside the scope of my testing environment.
+- The CMake configurations, and all the shell scripts I use, are not debatable. Now whether or not my code is ideal or as efficient as it could be, that is different. And so if you can improve upon my work when you see needed, please contribute in THAT meaningful way.
+- You can also reach out to me on BlueSky if you need to discuss anything related to this project: @ryanwiseman.bsky.social 
+    I am often more responsive there than through email.
