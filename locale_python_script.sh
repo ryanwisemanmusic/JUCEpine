@@ -1,14 +1,9 @@
 #!/bin/sh
-
-# locale_patch.sh - JUCE locale function patching for musl
-
 patch_locale_functions() {
     local stats_file="$1"
-    
-    # Patch locale functions using Python
+    # We use python to fix the issue of locale.
     cat > /tmp/fix_juce_locale.py << 'PYTHON_SCRIPT'
 import sys
-
 filename = sys.argv[1]
 with open(filename, 'r') as f:
     content = f.read()
