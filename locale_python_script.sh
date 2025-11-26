@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# locale_python_script.sh - Additional patching of a locale issue via Python (may need tweaking)
+# Copyright (C) 2025 Ryan Wiseman
 patch_locale_functions() {
     local stats_file="$1"
     # We use python to fix the issue of locale.

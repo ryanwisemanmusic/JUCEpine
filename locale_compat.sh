@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# locale_compat.sh - Provides the missing locale constants for musl (may need tweaking)
+# Copyright (C) 2025 Ryan Wiseman
 create_locale_compat_header() {
     local builddir="$1"
     install -Dm644 /dev/stdin "$builddir/modules/juce_core/native/locale_compat.h" <<-'LOCALE_COMPAT'

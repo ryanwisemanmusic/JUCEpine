@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# juce_pc_eof.sh - Supplies the pkg-config file for JUCE
+# Copyright (C) 2025 Ryan Wiseman
 create_pkg_config() {
     local pkgdir="$1"
     local pkgver="$2"

@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# juce_config.sh - Creates the global juce-config.h file that is needed for JUCE to properly build on Alpine
+# Copyright (C) 2025 Ryan Wiseman
 create_juce_config_header() {
     local builddir="$1"
     mkdir -p "$builddir/modules/juce_core/juce_core"

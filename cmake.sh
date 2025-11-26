@@ -1,7 +1,8 @@
 #!/bin/sh
-
-# cmake.sh - JUCE CMake build configuration
-
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# cmake.sh - Handles all the CMake configurations needed for JUCE to properly build on Alpine
+# Copyright (C) 2025 Ryan Wiseman
 create_cmake_file() {
     local builddir="$1"
     

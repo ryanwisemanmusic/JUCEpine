@@ -1,4 +1,9 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# execinfo-compat.sh - Fulfills the missing backtrace requirements that only exist under glibc, 
+#                      since libexecinfo was deprecated (and JUCE requires musl-compliant backtrace)
+# Copyright (C) 2025 Ryan Wiseman
 install -Dm644 /dev/stdin "$builddir/modules/juce_core/juce_core/execinfo.h" <<'EOF'
 #pragma once
 #ifdef __cplusplus

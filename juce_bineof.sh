@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# juce_bineof.sh - Copies the juce-config binary to the package directory and outputs it's success post install
+# Copyright (C) 2025 Ryan Wiseman
 create_juce_config_binary() {
     local pkgdir="$1"
     install -dm755 "$pkgdir/usr/bin"

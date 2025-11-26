@@ -1,4 +1,8 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# juce_cmake_eof.sh - Creates the CMake configuration file for JUCE by tacking on some other important CMake parameters
+# Copyright (C) 2025 Ryan Wiseman
 create_cmake_config() {
     local pkgdir="$1"
     local pkgver="$2"
